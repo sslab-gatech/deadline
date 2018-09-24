@@ -1,0 +1,59 @@
+From 3f419dcaa836a4bdbdf3a3304a0712660f61ddcb Mon Sep 17 00:00:00 2001
+From: Meng Xu <mengxu.gatech@gmail.com>
+Date: Wed, 23 Aug 2017 16:10:53 -0400
+Subject: [PATCH] perf/core: fix potential double-fetch bug
+
+While examining the kernel source code, I found a dangerous operation that
+could turn into a double-fetch situation (a race condition bug) where the same
+userspace memory region are fetched twice into kernel with sanity checks after
+the first fetch while missing checks after the second fetch.
+
+1. The first fetch happens in line 9573 get_user(size, &uattr->size).
+
+2. Subsequently the `size` variable undergoes a few sanity checks and
+transformations (line 9577 to 9584).
+
+3. The second fetch happens in line 9610 copy_from_user(attr, uattr, size)
+
+4. Given that `uattr` can be fully controlled in userspace, an attacker can
+race condition to override `uattr->size` to arbitrary value (say, 0xFFFFFFFF)
+after the first fetch but before the second fetch. The changed value will be
+copied to `attr->size`.
+
+5. There is no further checks on `attr->size` until the end of this function,
+and once the function returns, we lose the context to verify that `attr->size`
+conforms to the sanity checks performed in step 2 (line 9577 to 9584).
+
+6. My manual analysis shows that `attr->size` is not used elsewhere later,
+so, there is no working exploit against it right now. However, this could
+easily turns to an exploitable one if careless developers start to use
+`attr->size` later.
+
+Proposed patch:
+
+The patch is a one-liner which overrides `attr->size` from the second fetch to
+the one from the first fetch, regardless of what is actually copied in.
+In this way, it is assured that `attr->size` is in consistent with the checks
+performed after the first fetch.
+
+Signed-off-by: Meng Xu <mengxu.gatech@gmail.com>
+---
+ kernel/events/core.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index ee20d4c..c0d7946 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -9611,6 +9611,8 @@ static int perf_copy_attr(struct perf_event_attr __user *uattr,
+ 	if (ret)
+ 		return -EFAULT;
+ 
++	attr->size = size;
++
+ 	if (attr->__reserved_1)
+ 		return -EINVAL;
+ 
+-- 
+2.7.4
+

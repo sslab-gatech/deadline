@@ -1,0 +1,184 @@
+//=== for enumeration -----------------------------------------------------===//
+#ifdef LIBCALL_ENUM
+
+#define LIBCALL_0(name)                                             \
+  SE_Call_##name,
+
+#define LIBCALL_1(name, pos0, arg0)                                 \
+  SE_Call_##name,
+
+#define LIBCALL_2(name, pos0, arg0, pos1, arg1)                     \
+  SE_Call_##name,
+
+#define LIBCALL_3(name, pos0, arg0, pos1, arg1, pos2, arg2)         \
+  SE_Call_##name,
+
+#endif
+
+//=== for SEOpv definition ------------------------------------------------===//
+#ifdef LIBCALL_DOPV
+
+#define LIBCALL_0(name)                                             \
+  OPV_0(Call_##name);
+
+#define LIBCALL_1(name, pos0, arg0)                                 \
+  OPV_1(Call_##name, arg0);
+
+#define LIBCALL_2(name, pos0, arg0, pos1, arg1)                     \
+  OPV_2(Call_##name, arg0, arg1);
+
+#define LIBCALL_3(name, pos0, arg0, pos1, arg1, pos2, arg2)         \
+  OPV_3(Call_##name, arg0, arg1, arg2);
+
+#endif
+
+//=== for Slice backtrace -------------------------------------------------===//
+#ifdef LIBCALL_BACK
+
+#define LIBCALL_0(name)                                             \
+  else if(fn == #name){                                             \
+  }
+
+#define LIBCALL_1(name, pos0, arg0)                                 \
+  else if(fn == #name){                                             \
+    if(btrace(i_call->getArgOperand(pos0))){                        \
+      res = true;                                                   \
+    }                                                               \
+  }
+
+#define LIBCALL_2(name, pos0, arg0, pos1, arg1)                     \
+  else if(fn == #name){                                             \
+    if(btrace(i_call->getArgOperand(pos0))){                        \
+      res = true;                                                   \
+    }                                                               \
+    if(btrace(i_call->getArgOperand(pos1))){                        \
+      res = true;                                                   \
+    }                                                               \
+  }
+
+#define LIBCALL_3(name, pos0, arg0, pos1, arg1, pos2, arg2)         \
+  else if(fn == #name){                                             \
+    if(btrace(i_call->getArgOperand(pos0))){                        \
+      res = true;                                                   \
+    }                                                               \
+    if(btrace(i_call->getArgOperand(pos1))){                        \
+      res = true;                                                   \
+    }                                                               \
+    if(btrace(i_call->getArgOperand(pos2))){                        \
+      res = true;                                                   \
+    }                                                               \
+  }
+
+#endif
+
+//=== for SENode creation -------------------------------------------------===//
+#ifdef LIBCALL_NODE
+
+#define LIBCALL_0(name)                                             \
+  if(fn == #name){                                                  \
+    INIT_NODE(Call) {                                               \
+      node->addOpv(new SEOpvCall_##name(seq, op));                  \
+    } FINI_NODE;                                                    \
+  }
+
+#define LIBCALL_1(name, pos0, arg0)                                 \
+  if(fn == #name){                                                  \
+    INIT_NODE(Call) {                                               \
+      SENode *a0 = getNodeOrBuild(seq, op->getArgOperand(pos0));    \
+      node->addOpv(new SEOpvCall_##name(seq, op, a0));              \
+    } FINI_NODE;                                                    \
+  }
+
+#define LIBCALL_2(name, pos0, arg0, pos1, arg1)                     \
+  if(fn == #name){                                                  \
+    INIT_NODE(Call) {                                               \
+      SENode *a0 = getNodeOrBuild(seq, op->getArgOperand(pos0));    \
+      SENode *a1 = getNodeOrBuild(seq, op->getArgOperand(pos1));    \
+      node->addOpv(new SEOpvCall_##name(seq, op, a0, a1));          \
+    } FINI_NODE;                                                    \
+  }
+
+#define LIBCALL_3(name, pos0, arg0, pos1, arg1, pos2, arg2)         \
+  if(fn == #name){                                                  \
+    INIT_NODE(Call) {                                               \
+      SENode *a0 = getNodeOrBuild(seq, op->getArgOperand(pos0));    \
+      SENode *a1 = getNodeOrBuild(seq, op->getArgOperand(pos1));    \
+      SENode *a2 = getNodeOrBuild(seq, op->getArgOperand(pos2));    \
+      node->addOpv(new SEOpvCall_##name(seq, op, a0, a1, a2));      \
+    } FINI_NODE;                                                    \
+  }
+
+#endif
+
+//=== list of libcalls ----------------------------------------------------===//
+
+// intrinsics
+LIBCALL_1(llvm_objectsize_i64_p0i8, 0, obj)
+LIBCALL_1(llvm_bswap_i16, 0, iv)
+
+// malloc
+LIBCALL_1(__get_free_pages, 1, order)
+LIBCALL_1(__kmalloc, 0, size)
+LIBCALL_1(__kmalloc_track_caller, 0, size)
+LIBCALL_1(__vmalloc, 0, size)
+LIBCALL_0(get_zeroed_page)
+LIBCALL_0(kmem_cache_alloc)
+LIBCALL_1(krealloc, 1, size)
+LIBCALL_1(kvmalloc_node, 0, size)
+LIBCALL_1(vmalloc, 0, size)
+LIBCALL_1(vzalloc, 0, size)
+
+// memory
+LIBCALL_2(kmemdup, 0, src, 1, size)
+
+// fetch
+LIBCALL_3(__copy_user_flushcache, 0, dst, 1, src, 2, size)
+LIBCALL_3(__copy_user_nocache, 0, dst, 1, src, 2, size)
+LIBCALL_3(_copy_from_user, 0, dst, 1, src, 2, size)
+LIBCALL_2(memdup_user, 0, src, 1, size)
+
+// string
+LIBCALL_3(memcmp, 0, cs, 1, ct, 2, count)
+LIBCALL_2(strcmp, 0, cs, 1, ct)
+LIBCALL_1(strlen, 0, buf)
+LIBCALL_3(strncmp, 0, cs, 1, ct, 2, count)
+LIBCALL_2(strnlen, 0, buf, 1, count)
+LIBCALL_2(strnlen_user, 0, buf, 1, count)
+
+// transfer
+LIBCALL_0(_copy_to_user)
+LIBCALL_0(compat_alloc_user_space)
+
+// sync
+LIBCALL_0(init_wait_entry)
+LIBCALL_0(finish_wait)
+LIBCALL_0(mutex_lock_interruptible_nested)
+LIBCALL_0(mutex_trylock)
+LIBCALL_0(prepare_to_wait_event)
+
+// info
+LIBCALL_0(__dynamic_dev_dbg)
+LIBCALL_0(__dynamic_pr_debug)
+LIBCALL_0(printk)
+
+// checks
+LIBCALL_0(__check_object_size)
+LIBCALL_0(__inode_permission)
+LIBCALL_0(__list_add_valid)
+LIBCALL_0(__virt_addr_valid)
+LIBCALL_0(capable)
+LIBCALL_0(kasan_check_write)
+LIBCALL_0(mnt_want_write_file)
+LIBCALL_0(ns_capable)
+LIBCALL_0(security_capable)
+LIBCALL_0(security_file_fnctl)
+LIBCALL_0(security_file_ioctl)
+
+//=== undef all macros ----------------------------------------------------===//
+#undef LIBCALL_0
+#undef LIBCALL_1
+#undef LIBCALL_2
+#undef LIBCALL_3
+
+#undef INIT_CALL
+#undef FINI_CALL

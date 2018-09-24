@@ -1,0 +1,56 @@
+From 7277490ee956946a63c286e5ccce1ede299aac93 Mon Sep 17 00:00:00 2001
+From: Meng Xu <mengxu.gatech@gmail.com>
+Date: Tue, 19 Sep 2017 23:55:09 -0400
+Subject: [PATCH] aacraid: fix potential double-fetch issue
+
+While examining the kernel source code, I found a dangerous operation
+that could turn into a double-fetch situation (a race condition bug)
+where the same userspace memory region are fetched twice into kernel
+with sanity checks after the first fetch while missing checks after the
+second fetch.
+
+1. The first userspace fetch happens in
+copy_from_user(&fibsize, &user_srb->count,sizeof(u32))
+
+2. Subsequently fibsize undergoes a few sanity checks and is then
+used to allocate user_srbcmd = kmalloc(fibsize, GFP_KERNEL).
+
+3. The second userspace fetch happens in
+copy_from_user(user_srbcmd, user_srb,fibsize)
+
+4. Given that the memory region pointed by user_srb can be fully
+controlled in userspace, an attacker can race to override the
+user_srb->count to arbitrary value (say 0XFFFFFFFF) after the first
+fetch but before the second. The changed value will be copied to
+user_srbcmd.
+
+The patch explicitly overrides user_srbcmd->count after the second
+userspace fetch with the value fibsize from the first userspace fetch.
+In this way, it is assured that the relation, user_srbcmd->count stores
+the size of the user_srbcmd buffer, still holds after the second fetch.
+
+Signed-off-by: Meng Xu <mengxu.gatech@gmail.com>
+---
+ drivers/scsi/aacraid/commctrl.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/scsi/aacraid/commctrl.c b/drivers/scsi/aacraid/commctrl.c
+index 9ab0fa9..734bf11 100644
+--- a/drivers/scsi/aacraid/commctrl.c
++++ b/drivers/scsi/aacraid/commctrl.c
+@@ -540,6 +540,12 @@ static int aac_send_raw_srb(struct aac_dev* dev, void __user * arg)
+ 		goto cleanup;
+ 	}
+ 
++	/* 
++	 * re-establish the relation that user_srbcmd->count holds the 
++	 * size of user_srbcmd 
++	 */
++	user_srbcmd->count = fibsize;
++
+ 	flags = user_srbcmd->flags; /* from user in cpu order */
+ 	switch (flags & (SRB_DataIn | SRB_DataOut)) {
+ 	case SRB_DataOut:
+-- 
+2.7.4
+

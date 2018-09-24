@@ -1,0 +1,70 @@
+From 5c44b020d128a6fd40a389b7f9f6661a793b1f26 Mon Sep 17 00:00:00 2001
+From: Meng Xu <mengxu.gatech@gmail.com>
+Date: Wed, 23 Aug 2017 16:44:08 -0400
+Subject: [PATCH] nvdimm: fix potential double-fetch bug
+
+While examining the kernel source code, I found a dangerous operation that
+could turn into a double-fetch situation (a race condition bug) where
+the same userspace memory region are fetched twice into kernel with sanity
+checks after the first fetch while missing checks after the second fetch.
+
+In the case of _IOC_NR(ioctl_cmd) == ND_CMD_CALL:
+
+1. The first fetch happens in line 935 copy_from_user(&pkg, p, sizeof(pkg)
+
+2. subsequently `pkg.nd_reserved2` is asserted to be all zeroes
+(line 984 to 986).
+
+3. The second fetch happens in line 1022 copy_from_user(buf, p, buf_len)
+
+4. Given that `p` can be fully controlled in userspace, an attacker can
+race condition to override the header part of `p`, say,
+`((struct nd_cmd_pkg *)p)->nd_reserved2` to arbitrary value
+(say nine 0xFFFFFFFF for `nd_reserved2`) after the first fetch but before the
+second fetch. The changed value will be copied to `buf`.
+
+5. There is no checks on the second fetches until the use of it in
+line 1034: nd_cmd_clear_to_send(nvdimm_bus, nvdimm, cmd, buf) and
+line 1038: nd_desc->ndctl(nd_desc, nvdimm, cmd, buf, buf_len, &cmd_rc)
+which means that the assumed relation, `p->nd_reserved2` are all zeroes might
+not hold after the second fetch. And once the control goes to these functions
+we lose the context to assert the assumed relation.
+
+6. Based on my manual analysis, `p->nd_reserved2` is not used in function
+`nd_cmd_clear_to_send` and potential implementations of `nd_desc->ndctl`
+so there is no working exploit against it right now. However, this could
+easily turns to an exploitable one if careless developers start to use
+`p->nd_reserved2` later and assume that they are all zeroes.
+
+Proposed patch:
+
+The patch explicitly overrides `buf->nd_reserved2` after the second fetch with
+the value `pkg.nd_reserved2` from the first fetch. In this way, it is assured
+that the relation, `buf->nd_reserved2` are all zeroes, holds after the second
+fetch.
+
+Signed-off-by: Meng Xu <mengxu.gatech@gmail.com>
+---
+ drivers/nvdimm/bus.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
+index 937fafa..20c4d0f 100644
+--- a/drivers/nvdimm/bus.c
++++ b/drivers/nvdimm/bus.c
+@@ -1024,6 +1024,12 @@ static int __nd_ioctl(struct nvdimm_bus *nvdimm_bus, struct nvdimm *nvdimm,
+ 		goto out;
+ 	}
+ 
++	if (cmd == ND_CMD_CALL) {
++		struct nd_cmd_pkg *hdr = (struct nd_cmd_pkg *)buf;
++		memcpy(hdr->nd_reserved2, pkg.nd_reserved2,
++				sizeof(pkg.nd_reserved2));
++	}
++
+ 	nvdimm_bus_lock(&nvdimm_bus->dev);
+ 	rc = nd_cmd_clear_to_send(nvdimm_bus, nvdimm, func, buf);
+ 	if (rc)
+-- 
+2.7.4
+

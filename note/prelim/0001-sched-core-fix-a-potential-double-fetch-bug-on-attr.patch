@@ -1,0 +1,33 @@
+From a21ae7627f7e36575ff49f09d95aba2ee7957a27 Mon Sep 17 00:00:00 2001
+From: Meng Xu <mengxu.gatech@gmail.com>
+Date: Tue, 29 Aug 2017 14:52:09 -0400
+Subject: [PATCH] sched/core: Fix a potential double fetch bug on attr->size
+
+`attr->size` after the second fetch `copy_from_user(attr, uattr, size)`,
+can be different from what is initially fetched in and checked
+`get_user(size, &uattr->size)` by racing condition in the userspace.
+
+The issue and the patch are both similar to commit f12f42a
+(in kernel/events/core.c).
+
+Signed-off-by: Meng Xu <mengxu.gatech@gmail.com>
+---
+ kernel/sched/core.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 0869b20..c22d2b4 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -4349,6 +4349,8 @@ static int sched_copy_attr(struct sched_attr __user *uattr, struct sched_attr *a
+ 	if (ret)
+ 		return -EFAULT;
+ 
++	attr->size = size;
++
+ 	/*
+ 	 * XXX: Do we want to be lenient like existing syscalls; or do we want
+ 	 * to be strict and return an error on out-of-bounds values?
+-- 
+2.7.4
+

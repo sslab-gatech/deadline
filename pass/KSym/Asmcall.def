@@ -1,0 +1,125 @@
+//=== for enumeration -----------------------------------------------------===//
+#ifdef ASMCALL_ENUM
+
+#define ASMCALL_0(name, bin)                                        \
+  SE_Asm_##name,
+
+#define ASMCALL_1(name, bin, pos0, arg0)                            \
+  SE_Asm_##name,
+
+#define ASMCALL_2(name, bin, pos0, arg0, pos1, arg1)                \
+  SE_Asm_##name,
+
+#define ASMCALL_3(name, bin, pos0, arg0, pos1, arg1, pos2, arg2)    \
+  SE_Asm_##name,
+
+#endif
+
+//=== for SEOpv definition ------------------------------------------------===//
+#ifdef ASMCALL_DOPV
+
+#define ASMCALL_0(name, bin)                                        \
+  OPV_0(Asm_##name);
+
+#define ASMCALL_1(name, bin, pos0, arg0)                            \
+  OPV_1(Asm_##name, arg0);
+
+#define ASMCALL_2(name, bin, pos0, arg0, pos1, arg1)                \
+  OPV_2(Asm_##name, arg0, arg1);
+
+#define ASMCALL_3(name, bin, pos0, arg0, pos1, arg1, pos2, arg2)    \
+  OPV_3(Asm_##name, arg0, arg1, arg2);
+
+#endif
+
+//=== for Slice backtrace -------------------------------------------------===//
+#ifdef ASMCALL_BACK
+
+#define ASMCALL_0(name, bin)                                        \
+  else if(fn == bin){                                               \
+  }
+
+#define ASMCALL_1(name, bin, pos0, arg0)                            \
+  else if(fn == bin){                                               \
+    if(btrace(i_call->getArgOperand(pos0))){                        \
+      res = true;                                                   \
+    }                                                               \
+  }
+
+#define ASMCALL_2(name, bin, pos0, arg0, pos1, arg1)                \
+  else if(fn == bin){                                               \
+    if(btrace(i_call->getArgOperand(pos0))){                        \
+      res = true;                                                   \
+    }                                                               \
+    if(btrace(i_call->getArgOperand(pos1))){                        \
+      res = true;                                                   \
+    }                                                               \
+  }
+
+#define ASMCALL_3(name, bin, pos0, arg0, pos1, arg1, pos2, arg2)    \
+  else if(fn == bin){                                               \
+    if(btrace(i_call->getArgOperand(pos0))){                        \
+      res = true;                                                   \
+    }                                                               \
+    if(btrace(i_call->getArgOperand(pos1))){                        \
+      res = true;                                                   \
+    }                                                               \
+    if(btrace(i_call->getArgOperand(pos2))){                        \
+      res = true;                                                   \
+    }                                                               \
+  }
+
+#endif
+
+//=== for SENode creation -------------------------------------------------===//
+#ifdef ASMCALL_NODE
+
+#define ASMCALL_0(name, bin)                                        \
+  if(fn == bin){                                                    \
+    INIT_NODE(Asm) {                                                \
+      node->addOpv(new SEOpvAsm_##name(seq, op));                   \
+    } FINI_NODE;                                                    \
+  }
+
+#define ASMCALL_1(name, bin, pos0, arg0)                            \
+  if(fn == bin){                                                    \
+    INIT_NODE(Asm) {                                                \
+      SENode *a0 = getNodeOrBuild(seq, op->getArgOperand(pos0));    \
+      node->addOpv(new SEOpvAsm_##name(seq, op, a0));               \
+    } FINI_NODE;                                                    \
+  }
+
+#define ASMCALL_2(name, bin, pos0, arg0, pos1, arg1)                \
+  if(fn == bin){                                                    \
+    INIT_NODE(Asm) {                                                \
+      SENode *a0 = getNodeOrBuild(seq, op->getArgOperand(pos0));    \
+      SENode *a1 = getNodeOrBuild(seq, op->getArgOperand(pos1));    \
+      node->addOpv(new SEOpvAsm_##name(seq, op, a0, a1));           \
+    } FINI_NODE;                                                    \
+  }
+
+#define ASMCALL_3(name, bin, pos0, arg0, pos1, arg1, pos2, arg2)    \
+  if(fn == bin){                                                    \
+    INIT_NODE(Asm) {                                                \
+      SENode *a0 = getNodeOrBuild(seq, op->getArgOperand(pos0));    \
+      SENode *a1 = getNodeOrBuild(seq, op->getArgOperand(pos1));    \
+      SENode *a2 = getNodeOrBuild(seq, op->getArgOperand(pos2));    \
+      node->addOpv(new SEOpvAsm_##name(seq, op, a0, a1, a2));       \
+    } FINI_NODE;                                                    \
+  }
+
+#endif
+
+//=== list of asmcalls ----------------------------------------------------===//
+
+// fetch
+ASMCALL_2(__get_user_n, "call __get_user_${4:P}", 0, src, 1, size)
+
+//=== undef all macros ----------------------------------------------------===//
+#undef ASMCALL_0
+#undef ASMCALL_1
+#undef ASMCALL_2
+#undef ASMCALL_3
+
+#undef INIT_CALL
+#undef FINI_CALL

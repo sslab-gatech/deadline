@@ -1,0 +1,48 @@
+From 041d4830710d9f335458fdf311e5bcb07468acd0 Mon Sep 17 00:00:00 2001
+From: Meng Xu <mengxu.gatech@gmail.com>
+Date: Tue, 19 Sep 2017 10:46:16 -0400
+Subject: [PATCH] fs/coda: ensure the header peeked at is the same in the
+ actual message
+
+In coda_psdev_write(), the header of the buffer is fetched twice from the
+userspace. The first fetch is used to peek at the opcode and unique id while
+the second fetch copies the whole message. However, there could be
+inconsistency in these two fields between two fetches as buf resides in
+userspace memory and a user process can rush to change it across fetches.
+Which means that the corresponding opcode and unique id fields in
+req->uc_data could be different from what is fetched in for the first time.
+
+Whether this double-fetch situation is a security critical bug depends on
+how req->uc_data will be used later. However, given that it is hard to
+enumerate all the possible use cases, a safer way is to ensure that the
+peeked header is actually the same message header after the second fetch.
+
+This patch enforces that the header of the message fetched into req->uc_data
+is the same as what is fetched in originally. In other words, hdr.opcode and
+hdr.unique do not change.
+
+Signed-off-by: Meng Xu <mengxu.gatech@gmail.com>
+---
+ fs/coda/psdev.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/fs/coda/psdev.c b/fs/coda/psdev.c
+index f40e395..b9dbdd8 100644
+--- a/fs/coda/psdev.c
++++ b/fs/coda/psdev.c
+@@ -178,6 +178,12 @@ static ssize_t coda_psdev_write(struct file *file, const char __user *buf,
+ 		goto out;
+ 	}
+ 
++	/*
++	 * Override the request header to make sure that it matches the
++	 * first fetch from buf
++	 */
++	memcpy(req->uc_data, &hdr, 2 * sizeof(u_long));
++
+ 	/* adjust outsize. is this useful ?? */
+ 	req->uc_outSize = nbytes;
+ 	req->uc_flags |= CODA_REQ_WRITE;
+-- 
+2.7.4
+

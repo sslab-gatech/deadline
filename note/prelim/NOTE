@@ -1,0 +1,186 @@
+# 0001-acpi-fix-potential-double-fetch-bug.patch
+git send-email \
+  --to "rjw@rjwysocki.net" \
+  --to "lenb@kernel.org" \
+  --to "linux-acpi@vger.kernel.org" \
+  --to "linux-kernel@vger.kernel.org" \
+  --cc "meng.xu@gatech.edu" \
+  --cc "sanidhya@gatech.edu" \
+  --cc "taesoo@gatech.edu" \
+  0001-acpi-fix-potential-double-fetch-bug.patch
+
+# 0001-nvdimm-fix-potential-double-fetch-bug.patch
+git send-email \
+  --to "dan.j.williams@intel.com" \
+  --to "linux-nvdimm@lists.01.org" \
+  --to "linux-kernel@vger.kernel.org" \
+  --cc "meng.xu@gatech.edu" \
+  --cc "sanidhya@gatech.edu" \
+  --cc "taesoo@gatech.edu" \
+  0001-nvdimm-fix-potential-double-fetch-bug.patch
+
+# 0001-nvdimm-move-the-check-on-nd_reserved2-to-the-endpoin.patch
+git send-email \
+  --to "dan.j.williams@intel.com" \
+  --to "jerry.hoemann@hpe.com" \
+  --to "linux-nvdimm@lists.01.org" \
+  --to "linux-kernel@vger.kernel.org" \
+  --cc "meng.xu@gatech.edu" \
+  --cc "sanidhya@gatech.edu" \
+  --cc "taesoo@gatech.edu" \
+  0001-nvdimm-move-the-check-on-nd_reserved2-to-the-endpoin.patch
+ 
+# 0001-perf-core-fix-potential-double-fetch-bug.patch
+git send-email \
+  --to "peterz@infradead.org" \
+  --to "mingo@redhat.com" \
+  --to "acme@kernel.org" \
+  --to "alexander.shishkin@linux.intel.com" \
+  --to "linux-kernel@vger.kernel.org" \
+  --cc "meng.xu@gatech.edu" \
+  --cc "sanidhya@gatech.edu" \
+  --cc "taesoo@gatech.edu" \
+  0001-perf-core-fix-potential-double-fetch-bug.patch
+
+# 0001-sched-core-fix-a-potential-double-fetch-bug-on-attr.patch
+git send-email \
+	--to "mingo@redhat.com" \
+	--to "peterz@infradead.org" \
+	--to "linux-kernel@vger.kernel.org" \
+	--cc "meng.xu@gatech.edu" \
+	--cc "sanidhya@gatech.edu" \
+	--cc "taesoo@gatech.edu" \
+	0001-sched-core-fix-a-potential-double-fetch-bug-on-attr.patch
+
+# 0001-hid-uhid-fix-a-double-fetch-bug-when-copying-event-f.patch
+git send-email \
+	--to "dh.herrmann@googlemail.com" \
+	--to "jikos@kernel.org" \
+	--to "benjamin.tissoires@redhat.com" \
+	--to "linux-input@vger.kernel.org" \
+	--to "linux-kernel@vger.kernel.org" \
+	--cc "meng.xu@gatech.edu" \
+	--cc "sanidhya@gatech.edu" \
+	--cc "taesoo@gatech.edu" \
+	0001-hid-uhid-fix-a-double-fetch-bug-when-copying-event-f.patch
+
+# 0001-ALSA-asihpi-fix-a-potential-double-fetch-bug-when-co.patch
+git send-email \
+	--to "perex@perex.cz" \
+	--to "tiwai@suse.com" \
+	--to "vlad@tsyrklevich.net" \
+	--to "alsa-devel@alsa-project.org" \
+	--to "linux-kernel@vger.kernel.org" \
+	--cc "meng.xu@gatech.edu" \
+	--cc "sanidhya@gatech.edu" \
+	--cc "taesoo@gatech.edu" \
+	0001-ALSA-asihpi-fix-a-potential-double-fetch-bug-when-co.patch
+
+# 0001-fs-coda-ensure-the-header-peeked-at-is-the-same-in-t.patch
+git send-email \
+	--to "jaharkes@cs.cmu.edu" \
+	--to "coda@cs.cmu.edu" \
+	--to "codalist@coda.cs.cmu.edu" \
+	--to "linux-kernel@vger.kernel.org" \
+	--cc "meng.xu@gatech.edu" \
+	--cc "sanidhya@gatech.edu" \
+	--cc "taesoo@gatech.edu" \
+	0001-fs-coda-ensure-the-header-peeked-at-is-the-same-in-t.patch
+
+# 0001-scsi-ensure-the-header-peeked-does-not-change-in-the.patch
+git send-email \
+	--to "axboe@kernel.dk" \
+	--to "linux-block@vger.kernel.org" \
+	--to "linux-block@vger.kernel.org" \
+	--cc "meng.xu@gatech.edu" \
+	--cc "sanidhya@gatech.edu" \
+	--cc "taesoo@gatech.edu" \
+	0001-scsi-ensure-the-header-peeked-does-not-change-in-the.patch
+
+# 0001-scsi-skip-message-header-in-next-fetch.patch
+git send-email \
+	--to "hch@infradead.org" \
+	--to "axboe@kernel.dk" \
+	--to "linux-block@vger.kernel.org" \
+	--to "linux-block@vger.kernel.org" \
+	--cc "meng.xu@gatech.edu" \
+	--cc "sanidhya@gatech.edu" \
+	--cc "taesoo@gatech.edu" \
+	0001-scsi-skip-message-header-in-next-fetch.patch
+
+# 0001-net-compat-assert-the-size-of-cmsg-copied-in-is-as-e.patch
+git send-email \
+	--to "davem@davemloft.net" \
+	--to "netdev@vger.kernel.org" \
+	--to "linux-kernel@vger.kernel.org" \
+	--cc "meng.xu@gatech.edu" \
+	--cc "sanidhya@gatech.edu" \
+	--cc "taesoo@gatech.edu" \
+	0001-net-compat-assert-the-size-of-cmsg-copied-in-is-as-e.patch
+
+# 0001-isdn-i4l-check-the-message-proto-does-not-change-acr.patch
+git send-email \
+	--to "isdn@linux-pingi.de" \
+	--to "davem@davemloft.net" \
+	--to "johannes.berg@intel.com" \
+	--to "netdev@vger.kernel.org" \
+	--to "linux-kernel@vger.kernel.org" \
+	--cc "meng.xu@gatech.edu" \
+	--cc "sanidhya@gatech.edu" \
+	--cc "taesoo@gatech.edu" \
+	0001-isdn-i4l-check-the-message-proto-does-not-change-acr.patch
+
+# 0001-isdn-i4l-fetch-the-ppp_write-buffer-in-one-shot.patch
+git send-email \
+	--to "isdn@linux-pingi.de" \
+	--to "davem@davemloft.net" \
+	--to "johannes.berg@intel.com" \
+	--to "netdev@vger.kernel.org" \
+	--to "linux-kernel@vger.kernel.org" \
+	--cc "meng.xu@gatech.edu" \
+	--cc "sanidhya@gatech.edu" \
+	--cc "taesoo@gatech.edu" \
+	0001-isdn-i4l-fetch-the-ppp_write-buffer-in-one-shot.patch
+
+# 0001-mpt3sas-downgrade-full-copy_from_user-to-access_ok-c.patch
+git send-email \
+	--to "sathya.prakash@broadcom.com" \
+	--to "chaitra.basappa@broadcom.com" \
+	--to "suganath-prabu.subramani@broadcom.com" \
+	--to "jejb@linux.vnet.ibm.com" \
+	--to "martin.petersen@oracle.com" \
+	--to "MPT-FusionLinux.pdl@broadcom.com" \
+	--to "linux-scsi@vger.kernel.org" \
+	--to "linux-kernel@vger.kernel.org" \
+	--cc "meng.xu@gatech.edu" \
+	--cc "sanidhya@gatech.edu" \
+	--cc "taesoo@gatech.edu" \
+	0001-mpt3sas-downgrade-full-copy_from_user-to-access_ok-c.patch
+
+# 0001-mpt3sas-remove-redundant-copy_from_user-in-_ctl_geti.patch
+git send-email \
+	--to "hch@infradead.org" \
+	--to "sathya.prakash@broadcom.com" \
+	--to "chaitra.basappa@broadcom.com" \
+	--to "suganath-prabu.subramani@broadcom.com" \
+	--to "jejb@linux.vnet.ibm.com" \
+	--to "martin.petersen@oracle.com" \
+	--to "MPT-FusionLinux.pdl@broadcom.com" \
+	--to "linux-scsi@vger.kernel.org" \
+	--to "linux-kernel@vger.kernel.org" \
+	--cc "meng.xu@gatech.edu" \
+	--cc "sanidhya@gatech.edu" \
+	--cc "taesoo@gatech.edu" \
+	0001-mpt3sas-remove-redundant-copy_from_user-in-_ctl_geti.patch
+
+# 0001-aacraid-fix-potential-double-fetch-issue.patch
+git send-email \
+	--to "aacraid@microsemi.com" \
+	--to "jejb@linux.vnet.ibm.com" \
+	--to "martin.petersen@oracle.com" \
+	--to "linux-scsi@vger.kernel.org" \
+	--to "linux-kernel@vger.kernel.org" \
+	--cc "meng.xu@gatech.edu" \
+	--cc "sanidhya@gatech.edu" \
+	--cc "taesoo@gatech.edu" \
+	0001-aacraid-fix-potential-double-fetch-issue.patch

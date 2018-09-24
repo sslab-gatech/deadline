@@ -1,0 +1,70 @@
+From 89c1bb6a1464396134093d9a4e7287c887ab75a6 Mon Sep 17 00:00:00 2001
+From: Meng Xu <mengxu.gatech@gmail.com>
+Date: Tue, 19 Sep 2017 00:55:14 -0400
+Subject: [PATCH] ALSA: asihpi: fix a potential double-fetch bug when copying
+ puhm
+
+The hm->h.size is intended to hold the actual size of the hm struct
+that is copied from userspace and should always be <= sizeof(*hm).
+
+However, after copy_from_user(hm, puhm, hm->h.size), since userspace
+process has full control over the memory region pointed by puhm, it is
+possible that the value of hm->h.size is different from what is fetched-in
+previously (get_user(hm->h.size, (u16 __user *)puhm)). In other words,
+hm->h.size is overriden and the relation between hm->h.size and the hm
+struct is broken.
+
+This patch proposes to use a seperate variable, msg_size, to hold
+the value of the first fetch and override hm->h.size to msg_size
+after the second fetch to maintain the relation.
+
+Signed-off-by: Meng Xu <mengxu.gatech@gmail.com>
+---
+ sound/pci/asihpi/hpioctl.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/sound/pci/asihpi/hpioctl.c b/sound/pci/asihpi/hpioctl.c
+index 7e3aa50..5badd08 100644
+--- a/sound/pci/asihpi/hpioctl.c
++++ b/sound/pci/asihpi/hpioctl.c
+@@ -103,6 +103,7 @@ long asihpi_hpi_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	void __user *puhr;
+ 	union hpi_message_buffer_v1 *hm;
+ 	union hpi_response_buffer_v1 *hr;
++	u16 msg_size;
+ 	u16 res_max_size;
+ 	u32 uncopied_bytes;
+ 	int err = 0;
+@@ -127,22 +128,25 @@ long asihpi_hpi_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	}
+ 
+ 	/* Now read the message size and data from user space.  */
+-	if (get_user(hm->h.size, (u16 __user *)puhm)) {
++	if (get_user(msg_size, (u16 __user *)puhm)) {
+ 		err = -EFAULT;
+ 		goto out;
+ 	}
+-	if (hm->h.size > sizeof(*hm))
+-		hm->h.size = sizeof(*hm);
++	if (msg_size > sizeof(*hm))
++		msg_size = sizeof(*hm);
+ 
+ 	/* printk(KERN_INFO "message size %d\n", hm->h.wSize); */
+ 
+-	uncopied_bytes = copy_from_user(hm, puhm, hm->h.size);
++	uncopied_bytes = copy_from_user(hm, puhm, msg_size);
+ 	if (uncopied_bytes) {
+ 		HPI_DEBUG_LOG(ERROR, "uncopied bytes %d\n", uncopied_bytes);
+ 		err = -EFAULT;
+ 		goto out;
+ 	}
+ 
++	/* Override h.size in case it is changed between two userspace fetches */
++	hm->h.size = msg_size;
++
+ 	if (get_user(res_max_size, (u16 __user *)puhr)) {
+ 		err = -EFAULT;
+ 		goto out;
+-- 
+2.7.4
+

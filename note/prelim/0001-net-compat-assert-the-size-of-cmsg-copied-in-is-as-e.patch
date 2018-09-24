@@ -1,0 +1,52 @@
+From dd557c0274054803e1437499c8a77ba7bead26e8 Mon Sep 17 00:00:00 2001
+From: Meng Xu <mengxu.gatech@gmail.com>
+Date: Tue, 19 Sep 2017 12:54:42 -0400
+Subject: [PATCH] net: compat: assert the size of cmsg copied in is as expected
+
+The actual length of cmsg fetched in during the second loop
+(i.e., kcmsg - kcmsg_base) could be different from what we
+get from the first loop (i.e., kcmlen).
+
+The main reason is that the two get_user() calls in the two
+loops (i.e., get_user(ucmlen, &ucmsg->cmsg_len) and
+__get_user(ucmlen, &ucmsg->cmsg_len)) could cause ucmlen
+to have different values even they fetch from the same userspace
+address, as user can race to change the memory content in
+&ucmsg->cmsg_len across fetches.
+
+Although in the second loop, the sanity check
+if ((char *)kcmsg_base + kcmlen - (char *)kcmsg < CMSG_ALIGN(tmp))
+is inplace, it only ensures that the cmsg fetched in during the
+second loop does not exceed the length of kcmlen, but not
+necessarily equal to kcmlen. But indicated by the assignment
+kmsg->msg_controllen = kcmlen, we should enforce that.
+
+This patch adds this additional sanity check and ensures that
+what is recorded in kmsg->msg_controllen is the actual cmsg length.
+
+Signed-off-by: Meng Xu <mengxu.gatech@gmail.com>
+---
+ net/compat.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/net/compat.c b/net/compat.c
+index 6ded6c8..2238171 100644
+--- a/net/compat.c
++++ b/net/compat.c
+@@ -185,6 +185,13 @@ int cmsghdr_from_user_compat_to_kern(struct msghdr *kmsg, struct sock *sk,
+ 		ucmsg = cmsg_compat_nxthdr(kmsg, ucmsg, ucmlen);
+ 	}
+ 
++	/*
++	 * check the length of messages copied in is the same as the
++	 * what we get from the first loop
++	 */
++	if ((char *)kcmsg - (char *)kcmsg_base != kcmlen)
++		goto Einval;
++
+ 	/* Ok, looks like we made it.  Hook it up and return success. */
+ 	kmsg->msg_control = kcmsg_base;
+ 	kmsg->msg_controllen = kcmlen;
+-- 
+2.7.4
+

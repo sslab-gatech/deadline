@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef ORACLE_H_
 #define ORACLE_H_
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef SYMBOLIC_H_
 #define SYMBOLIC_H_
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef SEG_H_
 #define SEG_H_
 

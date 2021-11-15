@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include "Project.h"
 
 // the strategy to collect conditions 

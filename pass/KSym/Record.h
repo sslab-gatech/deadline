@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef RECORD_H_
 #define RECORD_H_
 

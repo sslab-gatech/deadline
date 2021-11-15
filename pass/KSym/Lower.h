@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef LOWER_H_
 #define LOWER_H_
 

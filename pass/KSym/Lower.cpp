@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // adapted from LowerSwitch.cpp
 
 #include "llvm/Transforms/Scalar.h"

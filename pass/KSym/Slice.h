@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef SLICE_H_
 #define SLICE_H_
 

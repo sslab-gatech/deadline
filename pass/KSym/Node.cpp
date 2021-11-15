@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include "Node.h"
 
  Node* Node::GLOBAL_CONSTANT_NODE = new Node(NodeType::UNDEFINED, InstType::NONE, nullptr, nullptr);

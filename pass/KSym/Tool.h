@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef TOOL_H_
 #define TOOL_H_
 

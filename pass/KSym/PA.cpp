@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include "PA.h"
 
 using namespace SEGUtil;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef DAG_H_
 #define DAG_H_
 

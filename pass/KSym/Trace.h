@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef TRACE_H_
 #define TRACE_H_
 

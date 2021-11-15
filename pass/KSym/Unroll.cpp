@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include "Project.h"
 
 // parameter to control loop unrolling

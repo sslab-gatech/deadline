@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __NODE__H
 #define __NODE__H
 
